@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TripDesk — Tourism Operations</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f5f6f8;--surface:#fff;--sidebar:#1a2332;--sidebar-hover:#243044;--sidebar-active:#2c3e56;
+  --text:#1e2a3a;--text2:#64748b;--border:#e2e6ec;--accent:#2563eb;--accent-light:#dbeafe;
+  --green:#059669;--green-l:#d1fae5;--orange:#d97706;--orange-l:#fef3c7;--red:#dc2626;--red-l:#fee2e2;
+  --purple:#7c3aed;--purple-l:#ede9fe;--radius:10px;--shadow:0 1px 3px rgba(0,0,0,.06);
+}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1419;--surface:#1a2332;--sidebar:#0d1117;--sidebar-hover:#161b22;--sidebar-active:#1f2937;
+    --text:#e2e8f0;--text2:#94a3b8;--border:#2d3748;--accent:#3b82f6;--accent-light:#1e3a5f;
+    --green-l:#064e3b;--orange-l:#78350f;--red-l:#7f1d1d;--purple-l:#3b1f6e;--shadow:0 1px 3px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1419;--surface:#1a2332;--sidebar:#0d1117;--sidebar-hover:#161b22;--sidebar-active:#1f2937;
+  --text:#e2e8f0;--text2:#94a3b8;--border:#2d3748;--accent:#3b82f6;--accent-light:#1e3a5f;
+  --green-l:#064e3b;--orange-l:#78350f;--red-l:#7f1d1d;--purple-l:#3b1f6e;--shadow:0 1px 3px rgba(0,0,0,.3);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;overflow:hidden}
+
+.sidebar{width:220px;background:var(--sidebar);color:#cbd5e1;display:flex;flex-direction:column;flex-shrink:0;padding:20px 0;height:100vh;position:sticky;top:0}
+.sidebar .logo{padding:0 20px 24px;font-size:18px;font-weight:700;color:#fff;letter-spacing:-.3px}
+.sidebar .logo span{color:var(--accent)}
+.sidebar nav{flex:1}
+.sidebar nav a{display:flex;align-items:center;gap:10px;padding:10px 20px;color:#94a3b8;text-decoration:none;font-size:14px;font-weight:500;transition:all .15s;cursor:pointer;border-left:3px solid transparent}
+.sidebar nav a:hover{background:var(--sidebar-hover);color:#e2e8f0}
+.sidebar nav a.active{background:var(--sidebar-active);color:#fff;border-left-color:var(--accent)}
+.sidebar nav a svg{width:18px;height:18px;flex-shrink:0}
+.sidebar .ub{padding:16px 20px;border-top:1px solid #2d3748;font-size:13px}
+.sidebar .ub .n{color:#fff;font-weight:600}
+.sidebar .ub .r{color:#64748b;font-size:12px}
+
+.main{flex:1;overflow-y:auto;padding:28px 32px;min-width:0}
+.pt{font-size:22px;font-weight:700;margin-bottom:4px;letter-spacing:-.3px}
+.ps{font-size:13px;color:var(--text2);margin-bottom:24px}
+.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.top-bar .left .pt{margin-bottom:2px}
+
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:24px}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow)}
+.sc .l{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:4px}
+.sc .v{font-size:22px;font-weight:700;letter-spacing:-.5px}
+.sc .s{font-size:11px;color:var(--text2);margin-top:3px}
+
+.tw{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow-x:auto;margin-bottom:20px}
+.th{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border)}
+.th h3{font-size:14px;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{text-align:left;padding:9px 14px;font-weight:600;color:var(--text2);font-size:11.5px;border-bottom:1px solid var(--border);white-space:nowrap;text-transform:uppercase;letter-spacing:.3px}
+tbody td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--bg)}
+
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.b-gr{background:var(--green-l);color:var(--green)}.b-or{background:var(--orange-l);color:var(--orange)}
+.b-re{background:var(--red-l);color:var(--red)}.b-bl{background:var(--accent-light);color:var(--accent)}
+.b-pu{background:var(--purple-l);color:var(--purple)}.b-gy{background:var(--bg);color:var(--text2)}
+
+.dp{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:20px}
+.dh{padding:18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start}
+.dh h3{font-size:16px;font-weight:700}
+.dh .m{font-size:12px;color:var(--text2);margin-top:2px}
+.db{padding:18px}
+.fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+.fg .f .fl{font-size:11px;color:var(--text2);font-weight:500;margin-bottom:2px}
+.fg .f .fv{font-size:14px;font-weight:500}
+
+.back{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--accent);cursor:pointer;margin-bottom:14px;font-weight:500;background:none;border:none;font-family:inherit}
+.cl{cursor:pointer;color:var(--accent);font-weight:500}
+.am{font-variant-numeric:tabular-nums}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
+.st{font-size:13px;font-weight:600;margin-bottom:10px}
+
+.btn{padding:7px 14px;border-radius:6px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px}
+.btn-p{background:var(--accent);color:#fff}
+.btn-p:hover{background:#1d4ed8}
+.btn-o{background:var(--surface);color:var(--text);border:1px solid var(--border)}
+.btn-o:hover{background:var(--bg)}
+.btn-d{background:var(--red-l);color:var(--red)}
+.btn-d:hover{background:#fecaca}
+.btn-s{padding:5px 10px;font-size:12px}
+.btn-g{background:var(--green-l);color:var(--green)}
+.btn-g:hover{background:#a7f3d0}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
+.modal{background:var(--surface);border-radius:12px;width:100%;max-width:600px;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:slideUp .2s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.modal-head{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-head h3{font-size:16px;font-weight:700}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2);padding:4px 8px;border-radius:4px}
+.modal-close:hover{background:var(--bg)}
+.modal-body{padding:22px}
+.modal-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+
+.form-row{margin-bottom:16px}
+.form-row label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px}
+.form-row input,.form-row select,.form-row textarea{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px;background:var(--bg);color:var(--text);font-family:inherit}
+.form-row textarea{resize:vertical;min-height:60px}
+.form-row select{appearance:auto}
+.form-row input:focus,.form-row select:focus,.form-row textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.form-grid .form-row{margin-bottom:14px}
+.form-full{grid-column:1/-1}
+
+.confirm-text{font-size:14px;line-height:1.6;margin-bottom:8px}
+.confirm-text strong{color:var(--red)}
+
+.empty-state{padding:32px;text-align:center;color:var(--text2);font-size:13px}
+
+.svc-card{border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px;background:var(--bg)}
+.svc-card .svc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.svc-card .svc-top strong{font-size:13px}
+
+@media(max-width:900px){.sidebar{display:none}.main{padding:16px}.stat-row{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="logo">Trip<span>Desk</span></div>
+  <nav id="nav"></nav>
+  <div class="ub"><div class="n">Lokesh M</div><div class="r">Admin</div></div>
+</aside>
+<main class="main" id="app"></main>
+
+<script>
+// ═══════════════════════════════════════
+// DATA STORE (mutable)
+// ═══════════════════════════════════════
+let nextId = { P:8, C:7, T:7, TS:17, CP:7, PP:9, INV:6 };
+function nid(pre){ const n = nextId[pre]++; return pre + String(n).padStart(3,'0'); }
+
+let partners = [
+  {id:'P001',name:'Deccan Heritage Hotels',type:'Hotel',dest:'Hyderabad',contact:'Ravi Prasad',phone:'9848012345',email:'ravi@deccanheritage.in',gstin:'36AABCD1234E1Z5',pan:'AABCD1234E',bank:'HDFC, 50100012345678',terms:'Net 15',status:'Active'},
+  {id:'P002',name:'Golconda Cabs & Tours',type:'Transport',dest:'Hyderabad',contact:'Suresh Reddy',phone:'9700198765',email:'suresh@golcondacabs.com',gstin:'36BBCDE5678F1Z1',pan:'BBCDE5678F',bank:'ICICI, 12340056789012',terms:'Net 7',status:'Active'},
+  {id:'P003',name:'Charminar Experiences',type:'Activity',dest:'Hyderabad',contact:'Fatima Khan',phone:'9246034567',email:'fatima@charexp.in',gstin:'36CCDEF9012G1Z3',pan:'CCDEF9012G',bank:'SBI, 30987654321',terms:'Advance',status:'Active'},
+  {id:'P004',name:'Novotel HICC Hyderabad',type:'Hotel',dest:'Hyderabad',contact:'Priya Sharma',phone:'4066721234',email:'priya@novotelhyd.com',gstin:'36DDEFG3456H1Z7',pan:'DDEFG3456H',bank:'Axis, 91700012345678',terms:'Net 30',status:'Active'},
+  {id:'P005',name:'Telangana Adventures',type:'DMC',dest:'Hyderabad & Warangal',contact:'Karthik Rao',phone:'9553076543',email:'karthik@teladv.co',gstin:'36EEFGH7890I1Z9',pan:'EEFGH7890I',bank:'Kotak, 45601234567890',terms:'Net 15',status:'Active'},
+  {id:'P006',name:'Ramoji Film City Bookings',type:'Activity',dest:'Hyderabad',contact:'Venkat Naidu',phone:'4023456789',email:'bookings@ramojifc.com',gstin:'36FFGHI2345J1Z2',pan:'FFGHI2345J',bank:'SBI, 20456789012345',terms:'Advance',status:'Active'},
+  {id:'P007',name:'Hussain Sagar Cruises',type:'Activity',dest:'Hyderabad',contact:'Syed Imran',phone:'9876501234',email:'imran@hussainsagar.in',gstin:'36GGHIJ6789K1Z4',pan:'GGHIJ6789K',bank:'BOB, 67891234560000',terms:'Advance',status:'Inactive'},
+];
+
+let customers = [
+  {id:'C001',name:'Ankit Jain',phone:'9876543210',email:'ankit.jain@gmail.com',city:'Mumbai',source:'Instagram',gstin:''},
+  {id:'C002',name:'Preethi Nair',phone:'8765432109',email:'preethi.n@yahoo.com',city:'Kochi',source:'Referral',gstin:''},
+  {id:'C003',name:'Rajesh Gupta',phone:'7654321098',email:'rajesh.g@outlook.com',city:'Delhi',source:'Facebook Ad',gstin:''},
+  {id:'C004',name:'Sneha Reddy',phone:'6543210987',email:'sneha.r@gmail.com',city:'Bangalore',source:'WhatsApp',gstin:''},
+  {id:'C005',name:'Vikram Singh',phone:'9988776655',email:'vikram.s@corp.in',city:'Jaipur',source:'Website',gstin:'08AABCV1234F1Z5'},
+  {id:'C006',name:'Megha Tiwari',phone:'8877665544',email:'megha.t@gmail.com',city:'Pune',source:'Instagram',gstin:''},
+];
+
+let trips = [
+  {id:'T001',customerId:'C001',dest:'Hyderabad Heritage',startDate:'2026-10-15',endDate:'2026-10-18',pax:4,status:'Confirmed',
+    services:[
+      {id:'TS01',partnerId:'P001',type:'Hotel',desc:'3N Deluxe Room x2',dates:'Oct 15–18',cost:18000,sell:24000,confRef:'DHH-9912',status:'Confirmed'},
+      {id:'TS02',partnerId:'P002',type:'Transport',desc:'Innova 3 days',dates:'Oct 15–18',cost:7500,sell:10000,confRef:'GC-4421',status:'Confirmed'},
+      {id:'TS03',partnerId:'P003',type:'Activity',desc:'Old City Heritage Walk x4',dates:'Oct 16',cost:4000,sell:6000,confRef:'CE-771',status:'Confirmed'},
+      {id:'TS04',partnerId:'P006',type:'Activity',desc:'Ramoji Film City 4 pax',dates:'Oct 17',cost:6000,sell:8000,confRef:'RFC-2204',status:'Confirmed'},
+    ]},
+  {id:'T002',customerId:'C002',dest:'Hyderabad Culinary',startDate:'2026-10-22',endDate:'2026-10-24',pax:2,status:'Confirmed',
+    services:[
+      {id:'TS05',partnerId:'P004',type:'Hotel',desc:'2N Superior Room',dates:'Oct 22–24',cost:12000,sell:16000,confRef:'NVT-3305',status:'Confirmed'},
+      {id:'TS06',partnerId:'P002',type:'Transport',desc:'Sedan 2 days',dates:'Oct 22–24',cost:4000,sell:5500,confRef:'GC-4435',status:'Confirmed'},
+      {id:'TS07',partnerId:'P003',type:'Activity',desc:'Biryani Trail + Old City x2',dates:'Oct 23',cost:3000,sell:4500,confRef:'CE-778',status:'Confirmed'},
+    ]},
+  {id:'T003',customerId:'C003',dest:'Hyderabad & Warangal',startDate:'2026-11-05',endDate:'2026-11-09',pax:6,status:'Draft',
+    services:[
+      {id:'TS08',partnerId:'P005',type:'DMC Package',desc:'5D/4N Hyd+Warangal full pkg',dates:'Nov 5–9',cost:54000,sell:72000,confRef:'',status:'Requested'},
+    ]},
+  {id:'T004',customerId:'C004',dest:'Hyderabad Weekend',startDate:'2026-10-10',endDate:'2026-10-12',pax:2,status:'Completed',
+    services:[
+      {id:'TS09',partnerId:'P001',type:'Hotel',desc:'2N Suite',dates:'Oct 10–12',cost:14000,sell:19000,confRef:'DHH-9908',status:'Confirmed'},
+      {id:'TS10',partnerId:'P002',type:'Transport',desc:'Sedan 2 days',dates:'Oct 10–12',cost:4000,sell:5500,confRef:'GC-4410',status:'Confirmed'},
+      {id:'TS11',partnerId:'P007',type:'Activity',desc:'Hussain Sagar sunset cruise x2',dates:'Oct 11',cost:1200,sell:2000,confRef:'HSC-112',status:'Confirmed'},
+    ]},
+  {id:'T005',customerId:'C005',dest:'Hyderabad MICE',startDate:'2026-11-18',endDate:'2026-11-20',pax:12,status:'Confirmed',
+    services:[
+      {id:'TS12',partnerId:'P004',type:'Hotel',desc:'6 rooms x 2N + conf hall',dates:'Nov 18–20',cost:84000,sell:108000,confRef:'NVT-3340',status:'Confirmed'},
+      {id:'TS13',partnerId:'P002',type:'Transport',desc:'Tempo Traveller 3 days',dates:'Nov 18–20',cost:15000,sell:20000,confRef:'GC-4460',status:'Requested'},
+    ]},
+  {id:'T006',customerId:'C006',dest:'Hyderabad Forts & Lakes',startDate:'2026-10-25',endDate:'2026-10-27',pax:3,status:'Ongoing',
+    services:[
+      {id:'TS14',partnerId:'P001',type:'Hotel',desc:'2N Deluxe Room x2',dates:'Oct 25–27',cost:12000,sell:16000,confRef:'DHH-9920',status:'Confirmed'},
+      {id:'TS15',partnerId:'P002',type:'Transport',desc:'Innova 2 days',dates:'Oct 25–27',cost:5000,sell:7000,confRef:'GC-4448',status:'Confirmed'},
+      {id:'TS16',partnerId:'P003',type:'Activity',desc:'Golconda Fort + Sound & Light x3',dates:'Oct 26',cost:3600,sell:5400,confRef:'CE-790',status:'Confirmed'},
+    ]},
+];
+
+let custPayments = [
+  {id:'CP01',tripId:'T001',date:'2026-09-28',amount:24000,mode:'UPI',ref:'UPI-88712',note:'Advance 50%'},
+  {id:'CP02',tripId:'T001',date:'2026-10-10',amount:24000,mode:'Bank Transfer',ref:'NEFT-44521',note:'Balance'},
+  {id:'CP03',tripId:'T002',date:'2026-10-05',amount:13000,mode:'UPI',ref:'UPI-90234',note:'Advance 50%'},
+  {id:'CP04',tripId:'T004',date:'2026-09-25',amount:26500,mode:'Bank Transfer',ref:'NEFT-43100',note:'Full payment'},
+  {id:'CP05',tripId:'T005',date:'2026-10-20',amount:64000,mode:'Bank Transfer',ref:'NEFT-45600',note:'Advance 50%'},
+  {id:'CP06',tripId:'T006',date:'2026-10-18',amount:14200,mode:'UPI',ref:'UPI-91500',note:'Advance 50%'},
+];
+
+let partPayments = [
+  {id:'PP01',partnerId:'P001',tripId:'T004',date:'2026-10-14',amount:14000,mode:'Bank Transfer',ref:'NEFT-77100',svcIds:['TS09']},
+  {id:'PP02',partnerId:'P002',tripId:'T004',date:'2026-10-14',amount:4000,mode:'Bank Transfer',ref:'NEFT-77101',svcIds:['TS10']},
+  {id:'PP03',partnerId:'P007',tripId:'T004',date:'2026-10-09',amount:1200,mode:'UPI',ref:'UPI-77200',svcIds:['TS11']},
+  {id:'PP04',partnerId:'P001',tripId:'T001',date:'2026-10-12',amount:18000,mode:'Bank Transfer',ref:'NEFT-77300',svcIds:['TS01']},
+  {id:'PP05',partnerId:'P002',tripId:'T001',date:'2026-10-12',amount:7500,mode:'Bank Transfer',ref:'NEFT-77301',svcIds:['TS02']},
+  {id:'PP06',partnerId:'P003',tripId:'T001',date:'2026-10-14',amount:4000,mode:'UPI',ref:'UPI-77400',svcIds:['TS03']},
+  {id:'PP07',partnerId:'P006',tripId:'T001',date:'2026-10-14',amount:6000,mode:'UPI',ref:'UPI-77401',svcIds:['TS04']},
+  {id:'PP08',partnerId:'P004',tripId:'T002',date:'2026-10-20',amount:12000,mode:'Bank Transfer',ref:'NEFT-77500',svcIds:['TS05']},
+];
+
+let invoices = [
+  {id:'INV-2026-001',tripId:'T001',date:'2026-10-10',base:48000,gst:8640,total:56640,status:'Paid'},
+  {id:'INV-2026-002',tripId:'T002',date:'2026-10-15',base:26000,gst:4680,total:30680,status:'Partial'},
+  {id:'INV-2026-003',tripId:'T004',date:'2026-10-08',base:26500,gst:4770,total:31270,status:'Paid'},
+  {id:'INV-2026-004',tripId:'T005',date:'2026-10-25',base:128000,gst:23040,total:151040,status:'Partial'},
+  {id:'INV-2026-005',tripId:'T006',date:'2026-10-20',base:28400,gst:5112,total:33512,status:'Issued'},
+];
+
+// ═══════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════
+const fmt = n => '₹'+Number(n).toLocaleString('en-IN');
+const gc = id => customers.find(c=>c.id===id);
+const gp = id => partners.find(p=>p.id===id);
+const tCost = t => t.services.reduce((s,v)=>s+v.cost,0);
+const tSell = t => t.services.reduce((s,v)=>s+v.sell,0);
+const tMargin = t => tSell(t)-tCost(t);
+const cpaid = tid => custPayments.filter(p=>p.tripId===tid).reduce((s,p)=>s+p.amount,0);
+const ppaid = (pid,tid) => partPayments.filter(p=>p.partnerId===pid&&(!tid||p.tripId===tid)).reduce((s,p)=>s+p.amount,0);
+const badge = s => {const m={Draft:'b-gy',Confirmed:'b-bl',Ongoing:'b-or',Completed:'b-gr',Closed:'b-gr',Requested:'b-or',Paid:'b-gr',Partial:'b-or',Issued:'b-bl',Active:'b-gr',Inactive:'b-gy'};return `<span class="badge ${m[s]||'b-gy'}">${s}</span>`};
+const today = ()=>new Date().toISOString().slice(0,10);
+const svcTypes = ['Hotel','Transport','Activity','DMC Package','Guide','Meals','Sightseeing','Other'];
+const pTypes = ['Hotel','Transport','Activity','DMC','Guide','Restaurant','Other'];
+const sources = ['Instagram','Facebook Ad','WhatsApp','Website','Referral','Google Ad','Walk-in','Other'];
+const statuses = ['Draft','Confirmed','Ongoing','Completed','Closed'];
+const svcStatuses = ['Requested','Confirmed','Cancelled'];
+const modes = ['UPI','Bank Transfer','Cash','Cheque','Card'];
+
+// ═══════════════════════════════════════
+// MODAL SYSTEM
+// ═══════════════════════════════════════
+function openModal(title,bodyHtml,footHtml,wide){
+  closeModal();
+  const ov = document.createElement('div');
+  ov.className='modal-overlay';
+  ov.id='modal-ov';
+  ov.innerHTML=`<div class="modal" style="${wide?'max-width:720px':''}">
+    <div class="modal-head"><h3>${title}</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">${bodyHtml}</div>
+    <div class="modal-foot">${footHtml}</div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click',e=>{if(e.target===ov)closeModal()});
+}
+function closeModal(){const o=document.getElementById('modal-ov');if(o)o.remove()}
+function mVal(id){return document.getElementById(id)?.value?.trim()||''}
+function mNum(id){return parseFloat(document.getElementById(id)?.value)||0}
+
+// ═══════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════
+const pages = [
+  {id:'dashboard',label:'Dashboard',icon:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>'},
+  {id:'trips',label:'Trips',icon:'<path d="M3 7l6-4 6 4 6-4v14l-6 4-6-4-6 4z"/>'},
+  {id:'customers',label:'Customers',icon:'<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/>'},
+  {id:'partners',label:'Partners',icon:'<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>'},
+  {id:'payments',label:'Payments',icon:'<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>'},
+  {id:'invoices',label:'Invoices',icon:'<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>'},
+  {id:'reports',label:'Reports',icon:'<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>'},
+];
+let cur='dashboard',detail=null;
+const navEl=document.getElementById('nav');
+navEl.innerHTML=pages.map(p=>`<a data-p="${p.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${p.icon}</svg>${p.label}</a>`).join('');
+navEl.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{cur=a.dataset.p;detail=null;render()}));
+
+function render(){
+  navEl.querySelectorAll('a').forEach(a=>a.classList.toggle('active',a.dataset.p===cur));
+  const app=document.getElementById('app');
+  if(detail){app.innerHTML=detail();return}
+  app.innerHTML=({dashboard:rDash,trips:rTrips,customers:rCust,partners:rPart,payments:rPay,invoices:rInv,reports:rRep})[cur]();
+}
+
+// ═══════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════
+function rDash(){
+  const ts=trips.reduce((s,t)=>s+tSell(t),0),tc=trips.reduce((s,t)=>s+tCost(t),0);
+  const rcv=custPayments.reduce((s,p)=>s+p.amount,0),po=partPayments.reduce((s,p)=>s+p.amount,0);
+  const act=trips.filter(t=>['Confirmed','Ongoing'].includes(t.status)).length;
+  return `<div class="pt">Dashboard</div><div class="ps">Hyderabad Tourism Operations — October 2026</div>
+  <div class="stat-row">
+    <div class="sc"><div class="l">Active Trips</div><div class="v">${act}</div><div class="s">${trips.length} total</div></div>
+    <div class="sc"><div class="l">Revenue</div><div class="v am">${fmt(ts)}</div><div class="s">Cost ${fmt(tc)}</div></div>
+    <div class="sc"><div class="l">Margin</div><div class="v am" style="color:var(--green)">${fmt(ts-tc)}</div><div class="s">${((ts-tc)/ts*100).toFixed(1)}%</div></div>
+    <div class="sc"><div class="l">Received</div><div class="v am">${fmt(rcv)}</div><div class="s">of ${fmt(ts)}</div></div>
+    <div class="sc"><div class="l">Receivables</div><div class="v am" style="color:var(--orange)">${fmt(ts-rcv)}</div></div>
+    <div class="sc"><div class="l">Partner Payables</div><div class="v am" style="color:var(--red)">${fmt(tc-po)}</div></div>
+  </div>
+  <div class="two">
+    <div class="tw"><div class="th"><h3>Upcoming Trips</h3></div><table><thead><tr><th>Trip</th><th>Customer</th><th>Dates</th><th>Status</th></tr></thead><tbody>
+    ${trips.filter(t=>['Confirmed','Ongoing'].includes(t.status)).map(t=>`<tr><td><span class="cl" onclick="showTrip('${t.id}')">${t.id}</span><br><span style="font-size:11px;color:var(--text2)">${t.dest}</span></td><td>${gc(t.customerId).name}</td><td style="font-size:12px">${t.startDate.slice(5)} → ${t.endDate.slice(5)}</td><td>${badge(t.status)}</td></tr>`).join('')}
+    </tbody></table></div>
+    <div class="tw"><div class="th"><h3>Recent Payments In</h3></div><table><thead><tr><th>Date</th><th>Customer</th><th>Amount</th><th>Mode</th></tr></thead><tbody>
+    ${custPayments.slice(-5).reverse().map(p=>{const t=trips.find(x=>x.id===p.tripId);return `<tr><td style="font-size:12px">${p.date.slice(5)}</td><td>${gc(t.customerId).name}</td><td class="am" style="color:var(--green)">${fmt(p.amount)}</td><td style="font-size:12px">${p.mode}</td></tr>`}).join('')}
+    </tbody></table></div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════
+// PARTNERS CRUD
+// ═══════════════════════════════════════
+function rPart(){
+  return `<div class="top-bar"><div class="left"><div class="pt">Partners</div><div class="ps" style="margin:0">${partners.length} partners</div></div><button class="btn btn-p" onclick="openPartnerForm()">+ Add Partner</button></div>
+  <div class="tw"><table><thead><tr><th>ID</th><th>Name</th><th>Type</th><th>Destination</th><th>Contact</th><th>Terms</th><th>Total Biz</th><th>Due</th><th>Status</th><th></th></tr></thead><tbody>
+  ${partners.map(p=>{const svcs=trips.flatMap(t=>t.services.filter(s=>s.partnerId===p.id));const tot=svcs.reduce((s,v)=>s+v.cost,0);const pd=ppaid(p.id);
+    return `<tr><td>${p.id}</td><td><span class="cl" onclick="showPartner('${p.id}')">${p.name}</span></td><td><span class="badge b-pu">${p.type}</span></td><td>${p.dest}</td><td>${p.contact}<br><span style="font-size:11px;color:var(--text2)">${p.phone}</span></td><td>${p.terms}</td><td class="am">${fmt(tot)}</td><td class="am" style="color:${tot-pd>0?'var(--red)':'var(--green)'}">${fmt(tot-pd)}</td><td>${badge(p.status)}</td><td><button class="btn btn-o btn-s" onclick="openPartnerForm('${p.id}')">Edit</button></td></tr>`}).join('')}
+  </tbody></table></div>`;
+}
+
+window.openPartnerForm = function(id){
+  const p = id ? gp(id) : null;
+  const t = p ? 'Edit Partner' : 'Add Partner';
+  openModal(t,`<div class="form-grid">
+    <div class="form-row"><label>Partner Name</label><input id="f-pname" value="${p?p.name:''}"></div>
+    <div class="form-row"><label>Type</label><select id="f-ptype">${pTypes.map(t=>`<option ${p&&p.type===t?'selected':''}>${t}</option>`).join('')}</select></div>
+    <div class="form-row"><label>Destination</label><input id="f-pdest" value="${p?p.dest:'Hyderabad'}"></div>
+    <div class="form-row"><label>Contact Person</label><input id="f-pcont" value="${p?p.contact:''}"></div>
+    <div class="form-row"><label>Phone</label><input id="f-pphone" value="${p?p.phone:''}"></div>
+    <div class="form-row"><label>Email</label><input id="f-pemail" value="${p?p.email:''}"></div>
+    <div class="form-row"><label>GSTIN</label><input id="f-pgstin" value="${p?p.gstin:''}"></div>
+    <div class="form-row"><label>PAN</label><input id="f-ppan" value="${p?p.pan:''}"></div>
+    <div class="form-row form-full"><label>Bank Details</label><input id="f-pbank" value="${p?p.bank:''}"></div>
+    <div class="form-row"><label>Payment Terms</label><select id="f-pterms"><option ${p&&p.terms==='Advance'?'selected':''}>Advance</option><option ${p&&p.terms==='Net 7'?'selected':''}>Net 7</option><option ${p&&p.terms==='Net 15'?'selected':''}>Net 15</option><option ${p&&p.terms==='Net 30'?'selected':''}>Net 30</option></select></div>
+    <div class="form-row"><label>Status</label><select id="f-pstat"><option ${p&&p.status==='Active'?'selected':''}>Active</option><option ${p&&p.status==='Inactive'?'selected':''}>Inactive</option></select></div>
+  </div>`,
+  `<button class="btn btn-o" onclick="closeModal()">Cancel</button>${p?`<button class="btn btn-d" onclick="delPartner('${p.id}')">Delete</button>`:''}<button class="btn btn-p" onclick="savePartner('${id||''}')">${p?'Update':'Add'}</button>`);
+};
+window.savePartner = function(id){
+  const d={name:mVal('f-pname'),type:mVal('f-ptype'),dest:mVal('f-pdest'),contact:mVal('f-pcont'),phone:mVal('f-pphone'),email:mVal('f-pemail'),gstin:mVal('f-pgstin'),pan:mVal('f-ppan'),bank:mVal('f-pbank'),terms:mVal('f-pterms'),status:mVal('f-pstat')};
+  if(!d.name)return alert('Name is required');
+  if(id){const p=gp(id);Object.assign(p,d)}else{partners.push({id:nid('P'),...d})}
+  closeModal();render();
+};
+window.delPartner = function(id){
+  const used=trips.some(t=>t.services.some(s=>s.partnerId===id));
+  if(used)return alert('Cannot delete: partner has linked services');
+  openModal('Delete Partner',`<p class="confirm-text">Delete <strong>${gp(id).name}</strong>? This cannot be undone.</p>`,
+  `<button class="btn btn-o" onclick="closeModal()">Cancel</button><button class="btn btn-d" onclick="confirmDelPartner('${id}')">Delete</button>`);
+};
+window.confirmDelPartner = function(id){partners=partners.filter(p=>p.id!==id);closeModal();render()};
+
+window.showPartner = function(id){
+  cur='partners';
+  detail=()=>{
+    const p=gp(id);if(!p)return'';
+    const svcs=trips.flatMap(t=>t.services.filter(s=>s.partnerId===p.id).map(s=>({...s,tripId:t.id,tripDest:t.dest})));
+    const tot=svcs.reduce((s,v)=>s+v.cost,0),pd=ppaid(p.id);
+    return `<button class="back" onclick="detail=null;render()">← Back to Partners</button>
+    <div class="dp"><div class="dh"><div><h3>${p.name}</h3><div class="m">${p.id} · ${p.type} · ${p.dest}</div></div><div style="display:flex;gap:8px">${badge(p.status)}<button class="btn btn-o btn-s" onclick="openPartnerForm('${p.id}')">Edit</button></div></div><div class="db">
+    <div class="fg" style="margin-bottom:20px">
+      <div class="f"><div class="fl">Contact</div><div class="fv">${p.contact}</div></div>
+      <div class="f"><div class="fl">Phone</div><div class="fv">${p.phone}</div></div>
+      <div class="f"><div class="fl">Email</div><div class="fv">${p.email}</div></div>
+      <div class="f"><div class="fl">GSTIN</div><div class="fv">${p.gstin}</div></div>
+      <div class="f"><div class="fl">PAN</div><div class="fv">${p.pan}</div></div>
+      <div class="f"><div class="fl">Bank</div><div class="fv">${p.bank}</div></div>
+      <div class="f"><div class="fl">Terms</div><div class="fv">${p.terms}</div></div>
+      <div class="f"><div class="fl">Total</div><div class="fv am">${fmt(tot)}</div></div>
+      <div class="f"><div class="fl">Paid</div><div class="fv am">${fmt(pd)}</div></div>
+      <div class="f"><div class="fl">Due</div><div class="fv am" style="color:var(--red)">${fmt(tot-pd)}</div></div>
+    </div>
+    <div class="st">Services</div><div class="tw"><table><thead><tr><th>Trip</th><th>Desc</th><th>Dates</th><th>Cost</th><th>Ref</th><th>Status</th></tr></thead><tbody>
+    ${svcs.map(s=>`<tr><td><span class="cl" onclick="showTrip('${s.tripId}')">${s.tripId}</span></td><td>${s.desc}</td><td style="font-size:12px">${s.dates}</td><td class="am">${fmt(s.cost)}</td><td style="font-size:12px">${s.confRef||'—'}</td><td>${badge(s.status)}</td></tr>`).join('')||'<tr><td colspan="6" class="empty-state">No services</td></tr>'}
+    </tbody></table></div>
+    <div class="st">Payments</div><div class="tw"><table><thead><tr><th>Date</th><th>Trip</th><th>Amount</th><th>Mode</th><th>Ref</th></tr></thead><tbody>
+    ${partPayments.filter(pp=>pp.partnerId===p.id).map(pp=>`<tr><td style="font-size:12px">${pp.date}</td><td><span class="cl" onclick="showTrip('${pp.tripId}')">${pp.tripId}</span></td><td class="am">${fmt(pp.amount)}</td><td>${pp.mode}</td><td style="font-size:12px">${pp.ref}</td></tr>`).join('')||'<tr><td colspan="5" class="empty-state">No payments</td></tr>'}
+    </tbody></table></div>
+    </div></div>`;
+  };render();
+};
+
+// ═══════════════════════════════════════
+// CUSTOMERS CRUD
+// ═══════════════════════════════════════
+function rCust(){
+  return `<div class="top-bar"><div class="left"><div class="pt">Customers</div><div class="ps" style="margin:0">${customers.length} customers</div></div><button class="btn btn-p" onclick="openCustForm()">+ Add Customer</button></div>
+  <div class="tw"><table><thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>City</th><th>Source</th><th>Trips</th><th>Spend</th><th>Paid</th><th></th></tr></thead><tbody>
+  ${customers.map(c=>{const ct=trips.filter(t=>t.customerId===c.id);const sp=ct.reduce((s,t)=>s+tSell(t),0);const pd=ct.reduce((s,t)=>s+cpaid(t.id),0);
+    return `<tr><td>${c.id}</td><td><span class="cl" onclick="showCustomer('${c.id}')">${c.name}</span></td><td>${c.phone}</td><td>${c.city}</td><td><span class="badge b-bl">${c.source}</span></td><td>${ct.length}</td><td class="am">${fmt(sp)}</td><td class="am">${fmt(pd)}</td><td><button class="btn btn-o btn-s" onclick="openCustForm('${c.id}')">Edit</button></td></tr>`}).join('')}
+  </tbody></table></div>`;
+}
+
+window.openCustForm = function(id){
+  const c = id ? gc(id) : null;
+  openModal(c?'Edit Customer':'Add Customer',`<div class="form-grid">
+    <div class="form-row"><label>Name</label><input id="f-cname" value="${c?c.name:''}"></div>
+    <div class="form-row"><label>Phone</label><input id="f-cphone" value="${c?c.phone:''}"></div>
+    <div class="form-row"><label>Email</label><input id="f-cemail" value="${c?c.email:''}"></div>
+    <div class="form-row"><label>City</label><input id="f-ccity" value="${c?c.city:''}"></div>
+    <div class="form-row"><label>Source</label><select id="f-csrc">${sources.map(s=>`<option ${c&&c.source===s?'selected':''}>${s}</option>`).join('')}</select></div>
+    <div class="form-row"><label>GSTIN (if B2B)</label><input id="f-cgstin" value="${c?c.gstin:''}"></div>
+  </div>`,
+  `<button class="btn btn-o" onclick="closeModal()">Cancel</button>${c?`<button class="btn btn-d" onclick="delCust('${c.id}')">Delete</button>`:''}<button class="btn btn-p" onclick="saveCust('${id||''}')">${c?'Update':'Add'}</button>`);
+};
+window.saveCust = function(id){
+  const d={name:mVal('f-cname'),phone:mVal('f-cphone'),email:mVal('f-cemail'),city:mVal('f-ccity'),source:mVal('f-csrc'),gstin:mVal('f-cgstin')};
+  if(!d.name||!d.phone)return alert('Name and phone are required');
+  if(id){Object.assign(gc(id),d)}else{customers.push({id:nid('C'),...d})}
+  closeModal();render();
+};
+window.delCust = function(id){
+  if(trips.some(t=>t.customerId===id))return alert('Cannot delete: customer has trips');
+  openModal('Delete Customer',`<p class="confirm-text">Delete <strong>${gc(id).name}</strong>?</p>`,
+  `<button class="btn btn-o" onclick="closeModal()">Cancel</button><button class="btn btn-d" onclick="customers=customers.filter(c=>c.id!=='${id}');closeModal();render()">Delete</button>`);
+};
+
+window.showCustomer = function(id){
+  cur='customers';
+  detail=()=>{
+    const c=gc(id);if(!c)return'';
+    const ct=trips.filter(t=>t.customerId===c.id);const sp=ct.reduce((s,t)=>s+tSell(t),0);const pd=ct.reduce((s,t)=>s+cpaid(t.id),0);
+    return `<button class="back" onclick="detail=null;render()">← Back to Customers</button>
+    <div class="dp"><div class="dh"><div><h3>${c.name}</h3><div class="m">${c.id} · ${c.city} · ${c.source}</div></div><div style="display:flex;gap:8px"><span class="badge b-bl">${c.source}</span><button class="btn btn-o btn-s" onclick="openCustForm('${c.id}')">Edit</button></div></div><div class="db">
+    <div class="fg" style="margin-bottom:20px">
+      <div class="f"><div class="fl">Phone</div><div class="fv">${c.phone}</div></div>
+      <div class="f"><div class="fl">Email</div><div class="fv">${c.email}</div></div>
+      <div class="f"><div class="fl">City</div><div class="fv">${c.city}</div></div>
+      <div class="f"><div class="fl">GSTIN</div><div class="fv">${c.gstin||'—'}</div></div>
+      <div class="f"><div class="fl">Total Spend</div><div class="fv am">${fmt(sp)}</div></div>
+      <div class="f"><div class="fl">Paid</div><div class="fv am">${fmt(pd)}</div></div>
+      <div class="f"><div class="fl">Outstanding</div><div class="fv am" style="color:var(--orange)">${fmt(sp-pd)}</div></div>
+    </div>
+    <div class="st">Trips</div><div class="tw"><table><thead><tr><th>ID</th><th>Dest</th><th>Dates</th><th>Sell</th><th>Paid</th><th>Status</th></tr></thead><tbody>
+    ${ct.map(t=>`<tr><td><span class="cl" onclick="showTrip('${t.id}')">${t.id}</span></td><td>${t.dest}</td><td style="font-size:12px">${t.startDate} → ${t.endDate}</td><td class="am">${fmt(tSell(t))}</td><td class="am">${fmt(cpaid(t.id))}</td><td>${badge(t.status)}</td></tr>`).join('')||'<tr><td colspan="6" class="empty-state">No trips</td></tr>'}
+    </tbody></table></div></div></div>`;
+  };render();
+};
+
+// ═══════════════════════════════════════
+// TRIPS CRUD
+// ═══════════════════════════════════════
+function rTrips(){
+  return `<div class="top-bar"><div class="left"><div class="pt">Trips</div><div class="ps" style="margin:0">${trips.length} trips</div></div><button class="btn btn-p" onclick="openTripForm()">+ Create Trip</button></div>
+  <div class="tw"><table><thead><tr><th>ID</th><th>Customer</th><th>Dest</th><th>Dates</th><th>Pax</th><th>Cost</th><th>Sell</th><th>Margin</th><th>Paid</th><th>Status</th><th></th></tr></thead><tbody>
+  ${trips.map(t=>{const c=gc(t.customerId);const co=tCost(t),se=tSell(t),pd=cpaid(t.id);
+    return `<tr><td><span class="cl" onclick="showTrip('${t.id}')">${t.id}</span></td><td><span class="cl" onclick="showCustomer('${t.customerId}')">${c.name}</span></td><td>${t.dest}</td><td style="font-size:12px">${t.startDate.slice(5)} → ${t.endDate.slice(5)}</td><td>${t.pax}</td><td class="am">${fmt(co)}</td><td class="am">${fmt(se)}</td><td class="am" style="color:var(--green)">${fmt(se-co)}</td><td class="am">${fmt(pd)}<span style="font-size:11px;color:var(--text2)"> / ${fmt(se)}</span></td><td>${badge(t.status)}</td><td><button class="btn btn-o btn-s" onclick="openTripForm('${t.id}')">Edit</button></td></tr>`}).join('')}
+  </tbody></table></div>`;
+}
+
+window.openTripForm = function(id){
+  const t = id ? trips.find(x=>x.id===id) : null;
+  openModal(t?'Edit Trip':'Create Trip',`<div class="form-grid">
+    <div class="form-row"><label>Customer</label><select id="f-tcust">${customers.map(c=>`<option value="${c.id}" ${t&&t.customerId===c.id?'selected':''}>${c.name} (${c.city})</option>`).join('')}</select></div>
+    <div class="form-row"><label>Destination</label><input id="f-tdest" value="${t?t.dest:'Hyderabad'}"></div>
+    <div class="form-row"><label>Start Date</label><input type="date" id="f-tstart" value="${t?t.startDate:''}"></div>
+    <div class="form-row"><label>End Date</label><input type="date" id="f-tend" value="${t?t.endDate:''}"></div>
+    <div class="form-row"><label>Pax</label><input type="number" id="f-tpax" value="${t?t.pax:2}" min="1"></div>
+    <div class="form-row"><label>Status</label><select id="f-tstat">${statuses.map(s=>`<option ${t&&t.status===s?'selected':''}>${s}</option>`).join('')}</select></div>
+  </div>`,
+  `<button class="btn btn-o" onclick="closeModal()">Cancel</button>${t?`<button class="btn btn-d" onclick="delTrip('${t.id}')">Delete</button>`:''}<button class="btn btn-p" onclick="saveTrip('${id||''}')">${t?'Update':'Create'}</button>`);
+};
+window.saveTrip = function(id){
+  const d={customerId:mVal('f-tcust'),dest:mVal('f-tdest'),startDate:mVal('f-tstart'),endDate:mVal('f-tend'),pax:parseInt(mVal('f-tpax'))||2,status:mVal('f-tstat')};
+  if(!d.dest||!d.startDate||!d.endDate)return alert('Fill all required fields');
+  if(id){const t=trips.find(x=>x.id===id);Object.assign(t,d)}else{trips.push({id:nid('T'),...d,services:[]})}
+  closeModal();render();
+};
+window.delTrip = function(id){
+  const hasPay = custPayments.some(p=>p.tripId===id)||partPayments.some(p=>p.tripId===id);
+  if(hasPay)return alert('Cannot delete: trip has payments');
+  openModal('Delete Trip',`<p class="confirm-text">Delete trip <strong>${id}</strong>?</p>`,
+  `<button class="btn btn-o" onclick="closeModal()">Cancel</button><button class="btn btn-d" onclick="trips=trips.filter(t=>t.id!=='${id}');invoices=invoices.filter(i=>i.tripId!=='${id}');closeModal();render()">Delete</button>`);
+};
+
+// ─── TRIP DETAIL + SERVICE CRUD ────────
+window.showTrip = function(id){
+  cur='trips';
+  detail=()=>{
+    const t=trips.find(x=>x.id===id);if(!t)return'';
+    const c=gc(t.customerId),co=tCost(t),se=tSell(t),pd=cpaid(t.id);
+    const ppd=t.services.reduce((s,sv)=>s+partPayments.filter(p=>p.svcIds.includes(sv.id)).reduce((x,p)=>x+p.amount,0),0);
+    return `<button class="back" onclick="detail=null;render()">← Back to Trips</button>
+    <div class="dp"><div class="dh"><div><h3>${t.id} — ${t.dest}</h3><div class="m"><span class="cl" onclick="showCustomer('${t.customerId}')">${c.name}</span> · ${t.pax} pax · ${t.startDate} → ${t.endDate}</div></div><div style="display:flex;gap:8px">${badge(t.status)}<button class="btn btn-o btn-s" onclick="openTripForm('${t.id}')">Edit Trip</button></div></div><div class="db">
+    <div class="stat-row" style="margin-bottom:18px">
+      <div class="sc"><div class="l">Cost</div><div class="v am">${fmt(co)}</div></div>
+      <div class="sc"><div class="l">Sell</div><div class="v am">${fmt(se)}</div></div>
+      <div class="sc"><div class="l">Margin</div><div class="v am" style="color:var(--green)">${fmt(se-co)}</div><div class="s">${se?(((se-co)/se)*100).toFixed(1):0}%</div></div>
+      <div class="sc"><div class="l">Cust Paid</div><div class="v am">${fmt(pd)}</div><div class="s">Bal ${fmt(se-pd)}</div></div>
+      <div class="sc"><div class="l">Partner Paid</div><div class="v am">${fmt(ppd)}</div><div class="s">Due ${fmt(co-ppd)}</div></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div class="st" style="margin:0">Services</div><button class="btn btn-p btn-s" onclick="openSvcForm('${t.id}')">+ Add Service</button></div>
+    <div class="tw"><table><thead><tr><th>Partner</th><th>Type</th><th>Desc</th><th>Dates</th><th>Cost</th><th>Sell</th><th>Ref</th><th>Status</th><th></th></tr></thead><tbody>
+    ${t.services.map(sv=>{const p=gp(sv.partnerId);return `<tr><td><span class="cl" onclick="showPartner('${sv.partnerId}')">${p?p.name:'—'}</span></td><td>${sv.type}</td><td>${sv.desc}</td><td style="font-size:12px">${sv.dates}</td><td class="am">${fmt(sv.cost)}</td><td class="am">${fmt(sv.sell)}</td><td style="font-size:12px">${sv.confRef||'—'}</td><td>${badge(sv.status)}</td><td><button class="btn btn-o btn-s" onclick="openSvcForm('${t.id}','${sv.id}')">Edit</button></td></tr>`}).join('')||`<tr><td colspan="9" class="empty-state">No services added yet</td></tr>`}
+    </tbody></table></div>
+    <div class="two">
+      <div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div class="st" style="margin:0">Customer Payments</div><button class="btn btn-g btn-s" onclick="openCustPayForm('${t.id}')">+ Record</button></div>
+      <div class="tw"><table><thead><tr><th>Date</th><th>Amount</th><th>Mode</th><th>Ref</th><th>Note</th></tr></thead><tbody>
+      ${custPayments.filter(p=>p.tripId===t.id).map(p=>`<tr><td style="font-size:12px">${p.date}</td><td class="am" style="color:var(--green)">${fmt(p.amount)}</td><td>${p.mode}</td><td style="font-size:12px">${p.ref}</td><td style="font-size:12px">${p.note}</td></tr>`).join('')||'<tr><td colspan="5" class="empty-state">No payments</td></tr>'}
+      </tbody></table></div></div>
+      <div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div class="st" style="margin:0">Partner Payments</div><button class="btn btn-g btn-s" onclick="openPartPayForm('${t.id}')">+ Record</button></div>
+      <div class="tw"><table><thead><tr><th>Partner</th><th>Date</th><th>Amount</th><th>Mode</th><th>Ref</th></tr></thead><tbody>
+      ${partPayments.filter(p=>p.tripId===t.id).map(p=>`<tr><td style="font-size:13px">${gp(p.partnerId)?.name||'—'}</td><td style="font-size:12px">${p.date}</td><td class="am" style="color:var(--red)">${fmt(p.amount)}</td><td>${p.mode}</td><td style="font-size:12px">${p.ref}</td></tr>`).join('')||'<tr><td colspan="5" class="empty-state">No payments</td></tr>'}
+      </tbody></table></div></div>
+    </div></div></div>`;
+  };render();
+};
+
+// ─── SERVICE FORM ──────────────────────
+window.openSvcForm = function(tripId,svcId){
+  const t=trips.find(x=>x.id===tripId);
+  const sv=svcId?t.services.find(s=>s.id===svcId):null;
+  openModal(sv?'Edit Service':'Add Service',`<div class="form-grid">
+    <div class="form-row"><label>Partner</label><select id="f-svpart">${partners.filter(p=>p.status==='Active').map(p=>`<option value="${p.id}" ${sv&&sv.partnerId===p.id?'selected':''}>${p.name} (${p.type})</option>`).join('')}</select></div>
+    <div class="form-row"><label>Service Type</label><select id="f-svtype">${svcTypes.map(s=>`<option ${sv&&sv.type===s?'selected':''}>${s}</option>`).join('')}</select></div>
+    <div class="form-row form-full"><label>Description</label><input id="f-svdesc" value="${sv?sv.desc:''}"></div>
+    <div class="form-row"><label>Dates</label><input id="f-svdates" value="${sv?sv.dates:''}" placeholder="e.g. Oct 15–18"></div>
+    <div class="form-row"><label>Partner Cost (₹)</label><input type="number" id="f-svcost" value="${sv?sv.cost:''}" min="0"></div>
+    <div class="form-row"><label>Sell Price (₹)</label><input type="number" id="f-svsell" value="${sv?sv.sell:''}" min="0"></div>
+    <div class="form-row"><label>Confirmation Ref</label><input id="f-svref" value="${sv?sv.confRef:''}"></div>
+    <div class="form-row"><label>Status</label><select id="f-svstat">${svcStatuses.map(s=>`<option ${sv&&sv.status===s?'selected':''}>${s}</option>`).join('')}</select></div>
+  </div>`,
+  `<button class="btn btn-o" onclick="closeModal()">Cancel</button>${sv?`<button class="btn btn-d" onclick="delSvc('${tripId}','${svcId}')">Delete</button>`:''}<button class="btn btn-p" onclick="saveSvc('${tripId}','${svcId||''}')">${sv?'Update':'Add'}</button>`);
+};
+window.saveSvc = function(tripId,svcId){
+  const d={partnerId:mVal('f-svpart'),type:mVal('f-svtype'),desc:mVal('f-svdesc'),dates:mVal('f-svdates'),cost:mNum('f-svcost'),sell:mNum('f-svsell'),confRef:mVal('f-svref'),status:mVal('f-svstat')};
+  if(!d.desc)return alert('Description required');
+  const t=trips.find(x=>x.id===tripId);
+  if(svcId){Object.assign(t.services.find(s=>s.id===svcId),d)}else{t.services.push({id:nid('TS'),...d})}
+  closeModal();showTrip(tripId);
+};
+window.delSvc = function(tripId,svcId){
+  if(partPayments.some(p=>p.svcIds.includes(svcId)))return alert('Cannot delete: has payments');
+  const t=trips.find(x=>x.id===tripId);
+  t.services=t.services.filter(s=>s.id!==svcId);closeModal();showTrip(tripId);
+};
+
+// ═══════════════════════════════════════
+// PAYMENTS CRUD
+// ═══════════════════════════════════════
+function rPay(){
+  const ri=custPayments.reduce((s,p)=>s+p.amount,0),po=partPayments.reduce((s,p)=>s+p.amount,0);
+  return `<div class="top-bar"><div class="left"><div class="pt">Payments</div><div class="ps" style="margin:0">Money in and out</div></div><div style="display:flex;gap:8px"><button class="btn btn-g" onclick="openCustPayForm()">+ Customer Payment</button><button class="btn btn-p" onclick="openPartPayForm()">+ Partner Payment</button></div></div>
+  <div class="stat-row">
+    <div class="sc"><div class="l">Total Received</div><div class="v am" style="color:var(--green)">${fmt(ri)}</div></div>
+    <div class="sc"><div class="l">Total Paid Out</div><div class="v am" style="color:var(--red)">${fmt(po)}</div></div>
+    <div class="sc"><div class="l">Net Position</div><div class="v am">${fmt(ri-po)}</div></div>
+  </div>
+  <div class="two">
+    <div class="tw"><div class="th"><h3>Customer Payments (In)</h3></div><table><thead><tr><th>Date</th><th>Trip</th><th>Customer</th><th>Amount</th><th>Mode</th><th>Ref</th></tr></thead><tbody>
+    ${[...custPayments].reverse().map(p=>{const t=trips.find(x=>x.id===p.tripId);return `<tr><td style="font-size:12px">${p.date}</td><td><span class="cl" onclick="showTrip('${p.tripId}')">${p.tripId}</span></td><td>${t?gc(t.customerId).name:'—'}</td><td class="am" style="color:var(--green)">${fmt(p.amount)}</td><td>${p.mode}</td><td style="font-size:12px">${p.ref}</td></tr>`}).join('')}
+    </tbody></table></div>
+    <div class="tw"><div class="th"><h3>Partner Payments (Out)</h3></div><table><thead><tr><th>Date</th><th>Trip</th><th>Partner</th><th>Amount</th><th>Mode</th><th>Ref</th></tr></thead><tbody>
+    ${[...partPayments].reverse().map(p=>`<tr><td style="font-size:12px">${p.date}</td><td><span class="cl" onclick="showTrip('${p.tripId}')">${p.tripId}</span></td><td>${gp(p.partnerId)?.name||'—'}</td><td class="am" style="color:var(--red)">${fmt(p.amount)}</td><td>${p.mode}</td><td style="font-size:12px">${p.ref}</td></tr>`).join('')}
+    </tbody></table></div>
+  </div>`;
+}
+
+window.openCustPayForm = function(tripId){
+  openModal('Record Customer Payment',`<div class="form-grid">
+    <div class="form-row"><label>Trip</label><select id="f-cptid">${trips.map(t=>`<option value="${t.id}" ${tripId===t.id?'selected':''}>${t.id} — ${gc(t.customerId).name} — ${t.dest}</option>`).join('')}</select></div>
+    <div class="form-row"><label>Amount (₹)</label><input type="number" id="f-cpamt" min="0"></div>
+    <div class="form-row"><label>Date</label><input type="date" id="f-cpdate" value="${today()}"></div>
+    <div class="form-row"><label>Mode</label><select id="f-cpmode">${modes.map(m=>`<option>${m}</option>`).join('')}</select></div>
+    <div class="form-row"><label>Reference</label><input id="f-cpref" placeholder="UPI ref / NEFT no"></div>
+    <div class="form-row"><label>Note</label><input id="f-cpnote" placeholder="e.g. Advance 50%"></div>
+  </div>`,
+  `<button class="btn btn-o" onclick="closeModal()">Cancel</button><button class="btn btn-p" onclick="saveCustPay()">Save</button>`);
+};
+window.saveCustPay = function(){
+  const d={tripId:mVal('f-cptid'),amount:mNum('f-cpamt'),date:mVal('f-cpdate'),mode:mVal('f-cpmode'),ref:mVal('f-cpref'),note:mVal('f-cpnote')};
+  if(!d.amount||!d.date)return alert('Amount and date required');
+  custPayments.push({id:nid('CP'),...d});closeModal();render();
+};
+
+window.openPartPayForm = function(tripId){
+  const trp = tripId ? trips.find(x=>x.id===tripId) : null;
+  const partnerOpts = trp
+    ? [...new Set(trp.services.map(s=>s.partnerId))].map(pid=>{const p=gp(pid);return `<option value="${pid}">${p.name}</option>`}).join('')
+    : partners.filter(p=>p.status==='Active').map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  openModal('Record Partner Payment',`<div class="form-grid">
+    <div class="form-row"><label>Trip</label><select id="f-pptid" onchange="ppTripChanged()">${trips.map(t=>`<option value="${t.id}" ${tripId===t.id?'selected':''}>${t.id} — ${t.dest}</option>`).join('')}</select></div>
+    <div class="form-row"><label>Partner</label><select id="f-pppart">${partnerOpts}</select></div>
+    <div class="form-row"><label>Amount (₹)</label><input type="number" id="f-ppamt" min="0"></div>
+    <div class="form-row"><label>Date</label><input type="date" id="f-ppdate" value="${today()}"></div>
+    <div class="form-row"><label>Mode</label><select id="f-ppmode">${modes.map(m=>`<option>${m}</option>`).join('')}</select></div>
+    <div class="form-row"><label>Reference</label><input id="f-ppref" placeholder="UTR / NEFT no"></div>
+  </div>`,
+  `<button class="btn btn-o" onclick="closeModal()">Cancel</button><button class="btn btn-p" onclick="savePartPay()">Save</button>`);
+};
+window.ppTripChanged = function(){
+  const tid=mVal('f-pptid');const t=trips.find(x=>x.id===tid);if(!t)return;
+  const sel=document.getElementById('f-pppart');
+  sel.innerHTML=[...new Set(t.services.map(s=>s.partnerId))].map(pid=>{const p=gp(pid);return `<option value="${pid}">${p?p.name:pid}</option>`}).join('');
+};
+window.savePartPay = function(){
+  const tid=mVal('f-pptid'),pid=mVal('f-pppart'),amt=mNum('f-ppamt');
+  if(!amt)return alert('Amount required');
+  const t=trips.find(x=>x.id===tid);
+  const svcIds=t?t.services.filter(s=>s.partnerId===pid).map(s=>s.id):[];
+  partPayments.push({id:nid('PP'),partnerId:pid,tripId:tid,date:mVal('f-ppdate'),amount:amt,mode:mVal('f-ppmode'),ref:mVal('f-ppref'),svcIds});
+  closeModal();render();
+};
+
+// ═══════════════════════════════════════
+// INVOICES CRUD
+// ═══════════════════════════════════════
+function rInv(){
+  return `<div class="top-bar"><div class="left"><div class="pt">Invoices</div><div class="ps" style="margin:0">${invoices.length} invoices</div></div><button class="btn btn-p" onclick="openInvForm()">+ Create Invoice</button></div>
+  <div class="tw"><table><thead><tr><th>Invoice</th><th>Trip</th><th>Customer</th><th>Date</th><th>Base</th><th>GST 18%</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody>
+  ${invoices.map(inv=>{const t=trips.find(x=>x.id===inv.tripId);const c=t?gc(t.customerId):null;
+    return `<tr><td style="font-weight:600">${inv.id}</td><td><span class="cl" onclick="showTrip('${inv.tripId}')">${inv.tripId}</span></td><td>${c?`<span class="cl" onclick="showCustomer('${c.id}')">${c.name}</span>`:'—'}</td><td style="font-size:12px">${inv.date}</td><td class="am">${fmt(inv.base)}</td><td class="am">${fmt(inv.gst)}</td><td class="am" style="font-weight:600">${fmt(inv.total)}</td><td>${badge(inv.status)}</td><td><button class="btn btn-o btn-s" onclick="openInvEdit('${inv.id}')">Edit</button></td></tr>`}).join('')}
+  </tbody></table></div>`;
+}
+
+window.openInvForm = function(){
+  openModal('Create Invoice',`<div class="form-grid">
+    <div class="form-row"><label>Trip</label><select id="f-invtid" onchange="invTripChanged()">${trips.map(t=>`<option value="${t.id}">${t.id} — ${gc(t.customerId).name} — ${t.dest}</option>`).join('')}</select></div>
+    <div class="form-row"><label>Date</label><input type="date" id="f-invdate" value="${today()}"></div>
+    <div class="form-row"><label>Base Amount (₹)</label><input type="number" id="f-invbase" min="0" onchange="invCalc()"></div>
+    <div class="form-row"><label>GST 18% (₹)</label><input type="number" id="f-invgst" readonly></div>
+    <div class="form-row"><label>Total (₹)</label><input type="number" id="f-invtot" readonly></div>
+    <div class="form-row"><label>Status</label><select id="f-invstat"><option>Issued</option><option>Partial</option><option>Paid</option></select></div>
+  </div>
+  <p style="font-size:12px;color:var(--text2);margin-top:8px">Base amount is prefilled from trip sell price. You can adjust it.</p>`,
+  `<button class="btn btn-o" onclick="closeModal()">Cancel</button><button class="btn btn-p" onclick="saveInv()">Create</button>`);
+  invTripChanged();
+};
+window.invTripChanged = function(){
+  const tid=mVal('f-invtid');const t=trips.find(x=>x.id===tid);
+  if(t){document.getElementById('f-invbase').value=tSell(t);invCalc()}
+};
+window.invCalc = function(){
+  const b=mNum('f-invbase');const g=Math.round(b*.18);
+  document.getElementById('f-invgst').value=g;document.getElementById('f-invtot').value=b+g;
+};
+window.saveInv = function(){
+  const d={tripId:mVal('f-invtid'),date:mVal('f-invdate'),base:mNum('f-invbase'),gst:mNum('f-invgst'),total:mNum('f-invtot'),status:mVal('f-invstat')};
+  if(!d.base)return alert('Base amount required');
+  const n=invoices.length+1;d.id=`INV-2026-${String(n).padStart(3,'0')}`;
+  invoices.push(d);closeModal();render();
+};
+window.openInvEdit = function(id){
+  const inv=invoices.find(x=>x.id===id);if(!inv)return;
+  openModal('Edit Invoice',`<div class="form-grid">
+    <div class="form-row"><label>Invoice</label><input value="${inv.id}" disabled></div>
+    <div class="form-row"><label>Trip</label><input value="${inv.tripId}" disabled></div>
+    <div class="form-row"><label>Date</label><input type="date" id="f-eivdate" value="${inv.date}"></div>
+    <div class="form-row"><label>Base (₹)</label><input type="number" id="f-eivbase" value="${inv.base}" onchange="eivCalc()"></div>
+    <div class="form-row"><label>GST 18% (₹)</label><input type="number" id="f-eivgst" value="${inv.gst}" readonly></div>
+    <div class="form-row"><label>Total (₹)</label><input type="number" id="f-eivtot" value="${inv.total}" readonly></div>
+    <div class="form-row"><label>Status</label><select id="f-eivstat"><option ${inv.status==='Issued'?'selected':''}>Issued</option><option ${inv.status==='Partial'?'selected':''}>Partial</option><option ${inv.status==='Paid'?'selected':''}>Paid</option></select></div>
+  </div>`,
+  `<button class="btn btn-o" onclick="closeModal()">Cancel</button><button class="btn btn-d" onclick="delInv('${inv.id}')">Delete</button><button class="btn btn-p" onclick="updateInv('${inv.id}')">Update</button>`);
+};
+window.eivCalc = function(){const b=mNum('f-eivbase');const g=Math.round(b*.18);document.getElementById('f-eivgst').value=g;document.getElementById('f-eivtot').value=b+g};
+window.updateInv = function(id){
+  const inv=invoices.find(x=>x.id===id);
+  inv.date=mVal('f-eivdate');inv.base=mNum('f-eivbase');inv.gst=mNum('f-eivgst');inv.total=mNum('f-eivtot');inv.status=mVal('f-eivstat');
+  closeModal();render();
+};
+window.delInv = function(id){invoices=invoices.filter(x=>x.id!==id);closeModal();render()};
+
+// ═══════════════════════════════════════
+// REPORTS
+// ═══════════════════════════════════════
+function rRep(){
+  const mr=trips.map(t=>({id:t.id,dest:t.dest,cust:gc(t.customerId).name,co:tCost(t),se:tSell(t),mg:tMargin(t),pct:tSell(t)?(tMargin(t)/tSell(t)*100).toFixed(1):'0',st:t.status}));
+  const tco=mr.reduce((s,r)=>s+r.co,0),tse=mr.reduce((s,r)=>s+r.se,0),tmg=mr.reduce((s,r)=>s+r.mg,0);
+  const cr=customers.map(c=>{const ct=trips.filter(t=>t.customerId===c.id);const se=ct.reduce((s,t)=>s+tSell(t),0);const pd=ct.reduce((s,t)=>s+cpaid(t.id),0);return{name:c.name,city:c.city,se,pd,due:se-pd}}).filter(c=>c.se>0);
+  const pr=partners.map(p=>{const svcs=trips.flatMap(t=>t.services.filter(s=>s.partnerId===p.id));const tot=svcs.reduce((s,v)=>s+v.cost,0);const pd=ppaid(p.id);return{name:p.name,type:p.type,tot,pd,due:tot-pd}}).filter(p=>p.tot>0);
+  return `<div class="pt">Reports</div><div class="ps">Financial overview</div>
+  <div class="tw"><div class="th"><h3>Trip Margin Report</h3></div><table><thead><tr><th>Trip</th><th>Customer</th><th>Dest</th><th>Cost</th><th>Sell</th><th>Margin</th><th>%</th><th>Status</th></tr></thead><tbody>
+  ${mr.map(r=>`<tr><td><span class="cl" onclick="showTrip('${r.id}')">${r.id}</span></td><td>${r.cust}</td><td>${r.dest}</td><td class="am">${fmt(r.co)}</td><td class="am">${fmt(r.se)}</td><td class="am" style="color:var(--green)">${fmt(r.mg)}</td><td>${r.pct}%</td><td>${badge(r.st)}</td></tr>`).join('')}
+  <tr style="font-weight:700;border-top:2px solid var(--border)"><td colspan="3">Total</td><td class="am">${fmt(tco)}</td><td class="am">${fmt(tse)}</td><td class="am" style="color:var(--green)">${fmt(tmg)}</td><td>${tse?((tmg/tse)*100).toFixed(1):'0'}%</td><td></td></tr>
+  </tbody></table></div>
+  <div class="two">
+    <div class="tw"><div class="th"><h3>Customer Receivables</h3></div><table><thead><tr><th>Customer</th><th>City</th><th>Total</th><th>Paid</th><th>Due</th></tr></thead><tbody>
+    ${cr.map(c=>`<tr><td>${c.name}</td><td>${c.city}</td><td class="am">${fmt(c.se)}</td><td class="am">${fmt(c.pd)}</td><td class="am" style="color:${c.due>0?'var(--orange)':'var(--green)'};font-weight:600">${fmt(c.due)}</td></tr>`).join('')}
+    </tbody></table></div>
+    <div class="tw"><div class="th"><h3>Partner Payables</h3></div><table><thead><tr><th>Partner</th><th>Type</th><th>Total</th><th>Paid</th><th>Due</th></tr></thead><tbody>
+    ${pr.map(p=>`<tr><td>${p.name}</td><td><span class="badge b-pu">${p.type}</span></td><td class="am">${fmt(p.tot)}</td><td class="am">${fmt(p.pd)}</td><td class="am" style="color:${p.due>0?'var(--red)':'var(--green)'};font-weight:600">${fmt(p.due)}</td></tr>`).join('')}
+    </tbody></table></div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════
+render();
+</script>
+</body>
+</html>
